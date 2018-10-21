@@ -31,27 +31,67 @@
 const viewer = new Cesium.Viewer('cesiumContainer', {
   shouldAnimate: true
 });
+var entity = viewer.entities.add({
+    // Load the Cesium plane model to represent the entity
+    model : {
+        uri : '../../SampleData/models/CesiumAir/Cesium_Air.gltf',
+        minimumPixelSize : 64
+    },
+    position : Cesium.Cartesian3.fromDegrees(-112.110693, 36.0994841, 1000.0)
+});
+viewer.trackedEntity = entity;
 
+// 计算 time 时间下模型位置
+function computeModelMatrix(entity, time) {
+    var position = Cesium.Property.getValueOrUndefined(entity.position, time, new Cesium.Cartesian3());
+    if (!Cesium.defined(position)) {
+        return undefined;
+    }
+    var orientation = Cesium.Property.getValueOrUndefined(entity.orientation, time, new Cesium.Quaternion());
+    if (!Cesium.defined(orientation)) {
+        var modelMatrix = Cesium.Transforms.eastNorthUpToFixedFrame(position, undefined, new Cesium.Matrix4());
+    } else {
+        modelMatrix = Cesium.Matrix4.fromRotationTranslation(Cesium.Matrix3.fromQuaternion(orientation, new Cesium.Matrix3()), position, new Cesium.Matrix4());
+    }
+    return modelMatrix;
+}
+
+// 设置粒子发射器位置
+function computeEmitterModelMatrix() {
+    var hpr = Cesium.HeadingPitchRoll.fromDegrees(0.0, 0.0, 0.0, new Cesium.HeadingPitchRoll());
+    var trs = new Cesium.TranslationRotationScale();
+    trs.translation = Cesium.Cartesian3.fromElements(2.5, 4.0, 1.0, new Cesium.Cartesian3());
+    trs.rotation = Cesium.Quaternion.fromHeadingPitchRoll(hpr, new Cesium.Quaternion());
+    return Cesium.Matrix4.fromTranslationRotationScale(trs, new Cesium.Matrix4());
+}
+
+// 重力
+var gravity = -100;
+var gravityScratch = new Cesium.Cartesian3();
+function applyGravity(p, dt) {
+    // Compute a local up vector for each particle in geocentric space.
+    var position = p.position;
+
+    Cesium.Cartesian3.normalize(position, gravityScratch);
+    Cesium.Cartesian3.multiplyByScalar(gravityScratch, gravity * dt, gravityScratch);
+
+    p.velocity = Cesium.Cartesian3.add(p.velocity, gravityScratch, p.velocity);
+}
+
+// 建立粒子系统
 var particleSystem = viewer.scene.primitives.add(new Cesium.ParticleSystem({
-  // 粒子表面
-  image: '../../SampleDate/fire.png',
-  width: 20,
-  height: 20,
-  startScale: 1.0,
-  endScale: 4.0,
-
-  // 粒子行为
-  life: 1.0,
-  speed: 5.0,
-
-  // 发射器参数
-  emitter: new Cesium.CircleEmitter(0.5),
-  rate: 5.0,
-  emitterModelMatrix: computeEmitterModelMatrix(),
-
-  // 粒子系统参数
-  modelMatrix: computeModelMatrix(),
-  lifetime: 16.0
+    image : '../../SampleData/fire.png',
+    startScale : 1.0,
+    endScale : 4.0,
+    particleLife : 1.0,
+    speed : 5.0,
+    imageSize : new Cesium.Cartesian2(20, 20),
+    emissionRate : 5.0,
+    lifetime : 16.0,
+    modelMatrix : computeModelMatrix(entity, Cesium.JulianDate.now()),
+    emitterModelMatrix : computeEmitterModelMatrix(),
+    // forces: applyGravity,
+    updateCallback: applyGravity,
 }));
 
 //Sandcastle_End
