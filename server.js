@@ -78,7 +78,7 @@
 
   // 重定向首页
   app.get('/', (req, res) => {
-    res.redirect('/Apps/Sandcastle/gallery/rain.html');
+    res.redirect('/Apps/Sandcastle/gallery2/rain.html');
   });
   var knownTilesetFormats = [/\.b3dm/, /\.pnts/, /\.i3dm/, /\.cmpt/, /\.glb/, /\.geom/, /\.vctr/, /tileset.*\.json$/];
   app.get(knownTilesetFormats, checkGzipAndNext);
