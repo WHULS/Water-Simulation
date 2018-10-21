@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport"
+    content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no">
+  <meta name="description" content="Particle systems for rocket and comet tails.">
+  <meta name="cesium-sandcastle-labels" content="Beginner, Showcases, Tutorials">
+  <title>Cesium Demo</title>
+  <script type="text/javascript" src="../Sandcastle-header.js"></script>
+  <script type="text/javascript" src="../../../ThirdParty/requirejs-2.1.20/require.js"></script>
+  <script type="text/javascript">
+    require.config({
+      baseUrl : '../../../Source',
+      waitSeconds : 60
+    });
+  </script>
+</head>
+
+<body class="sandcastle-loading" data-sandcastle-bucket="bucket-requirejs.html">
+
+<style>
+  @import url(../templates/bucket.css);
+</style>
+
+<div id="cesiumContainer" class="fullSize"></div>
+<div id="loadingOverlay"><h1>Loading...</h1></div>
+<div id="toolbar"></div>
+
+<script id="cesium_sandcastle_script">
+  function startup(Cesium) {
+    'use strict';
+//Sandcastle_Begin
+const viewer = new Cesium.Viewer('cesiumContainer', {
+  infoBox : false,
+  selectionIndicator : false,
+  shadows : true,
+  shouldAnimate : true
+});
+const scene = viewer.scene;
+const ellipsoid = scene.globe.ellipsoid;// 当前三维场景的椭球体
+
+// 初始化实体
+var entity = {
+  model: {
+    uri: '../../SampleData/models/CesiumAir/Cesium_Air.glb'
+  }
+};
+
+// 设置实体
+function setEntity(url) {
+  entity.model.uri = url;
+}
+
+function flyToPlayground() {
+  Sandcastle.declare(flyToPlayground);
+
+  var camera = scene.camera;
+  camera.flyTo({
+    destination : Cesium.Cartesian3.fromDegrees(114.35660846316384, 30.52925195710227,164),
+    complete : function() {
+      setTimeout(function() {
+        camera.flyTo({
+          destination : Cesium.Cartesian3.fromDegrees(114.35660846316384, 30.52925195710227,164),
+          orientation : {
+            heading : Cesium.Math.toRadians(315),
+            pitch : Cesium.Math.toRadians(-50.0)
+          },
+          easingFunction : Cesium.EasingFunction.LINEAR_NONE
+        });
+      }, 300);
+    }
+  });
+}
+
+var options = [{
+  text : 'Aircraft',
+  onselect : function() {
+    setEntity('../../SampleData/models/CesiumAir/Cesium_Air.glb');
+  }
+}, {
+  text : 'Ground Vehicle',
+  onselect : function() {
+    setEntity('../../SampleData/models/GroundVehicle/GroundVehicle.glb');
+  }
+}, {
+  text : 'Hot Air Balloon',
+  onselect : function() {
+    setEntity('../../SampleData/models/CesiumBalloon/CesiumBalloon.glb');
+  }
+}, {
+  text : 'Milk Truck',
+  onselect : function() {
+    setEntity('../../SampleData/models/CesiumMilkTruck/CesiumMilkTruck-kmc.glb');
+  }
+}, {
+  text : 'Skinned Character',
+  onselect : function() {
+    setEntity('../../SampleData/models/CesiumMan/Cesium_Man.glb');
+  }
+}, {
+  text : 'Draco Compressed Model',
+  onselect : function() {
+    setEntity('../../SampleData/models/DracoCompressed/CesiumMilkTruck.gltf');
+  }
+}];
+Sandcastle.addToolbarMenu(options);
+Sandcastle.addToolbarButton('到信操', function() {
+  flyToPlayground();
+});
+  
+// 绘制实体
+const handler = new Cesium.ScreenSpaceEventHandler(scene.canvas);
+
+handler.setInputAction(function(movement){
+  //获取笛卡尔坐标
+  let cartesian = scene.camera.pickEllipsoid(movement.position, scene.globe.ellipsoid);
+
+  console.log(cartesian);
+  entity.position = cartesian;
+  console.log(entity);
+  viewer.entities.add(entity);
+  
+}, Cesium.ScreenSpaceEventType.LEFT_DOUBLE_CLICK);
+
+let longitudeString;
+let latitudeString;
+let height;
+
+//设置鼠标移动事件的处理函数，这里负责监听x,y坐标值变化
+handler.setInputAction(function(movement) {
+  //通过指定的椭球或者地图对应的坐标系，将鼠标的二维坐标转换为对应椭球体三维坐标
+  let cartesian = viewer.camera.pickEllipsoid(movement.endPosition, ellipsoid);
+  if (cartesian) {
+    //将笛卡尔坐标转换为地理坐标
+    var cartographic = ellipsoid.cartesianToCartographic(cartesian);
+
+    //将弧度转为度的十进制度表示
+    longitudeString = Cesium.Math.toDegrees(cartographic.longitude);
+    latitudeString = Cesium.Math.toDegrees(cartographic.latitude);
+    //获取相机高度
+    height = Math.ceil(viewer.camera.positionCartographic.height);
+
+    console.log('(' + longitudeString + ', ' + latitudeString + "," + height + ')' );
+  }else {
+    console.error('nothing');
+  }
+}, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
+
+//设置鼠标滚动事件的处理函数，这里负责监听高度值变化
+handler.setInputAction(function(wheelment) {
+  height = Math.ceil(viewer.camera.positionCartographic.height);
+  
+  console.log('(' + longitudeString + ', ' + latitudeString + "," + height + ')' );
+
+}, Cesium.ScreenSpaceEventType.WHEEL);
+
+//Sandcastle_End
+  Sandcastle.finishedLoading();
+  }
+
+  if (typeof Cesium !== 'undefined') {
+  startup(Cesium);
+  } else if (typeof require === 'function') {
+  require(['Cesium'], startup);
+  }
+</script>
+
+</body>
+</html>
