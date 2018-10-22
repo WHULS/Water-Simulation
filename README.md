@@ -1,5 +1,19 @@
 # 水模拟 - WaterSimulation
 
+&emsp;东西都放在 `Apps/Sandcastle/gallery2/` 里面了。
+
+&emsp;尝试模拟 **降雨** 、 **节流** 、 **汇水** 、 **排水** 的功能。
+
+&emsp;主要代码写在 `html` 文件中 `Sandcastle_Begin` 和 `Sandcastle_End` 之中的位置。
+
+```JavaScript
+//Sandcastle_Begin
+
+// code...
+
+//Sandcastle_End
+```
+
 ## 预备条件
 1. node
 2. npm
