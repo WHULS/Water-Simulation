@@ -13,6 +13,15 @@
 
 //Sandcastle_End
 ```
+## 学习资源
+
+- [高级粒子系统 | Tutorials](https://cesiumjs.org/tutorials/Particle-Systems-More-Effects-Tutorial/)
+- [粒子系统基础 | Tutorials](https://cesiumjs.org/tutorials/Particle-Systems-Tutorial/)
+- [cesium调用天地图服务 | CSDN](https://blog.csdn.net/taiyang1987912/article/details/82842100)
+- [cesium绘制河流流水 | CSDN](https://blog.csdn.net/weixin_42496466/article/details/80747565)
+- [cesium中文教程 | marsgis](http://cesium.marsgis.cn/go.html?id=12)
+- [API | marsgis](http://cesium.marsgis.cn/go.html?id=13)
+- [API | 官方](https://cesiumjs.org/refdoc/)
 
 ## 预备条件
 1. node
