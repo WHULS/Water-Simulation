@@ -40,6 +40,7 @@ var entity = viewer.entities.add({
     position : Cesium.Cartesian3.fromDegrees(-112.110693, 36.0994841, 1000.0)
 });
 viewer.trackedEntity = entity;
+// viewer.zoomTo(entity);
 
 // 计算 time 时间下模型位置
 function computeModelMatrix(entity, time) {
@@ -58,15 +59,17 @@ function computeModelMatrix(entity, time) {
 
 // 设置粒子发射器位置
 function computeEmitterModelMatrix() {
-    var hpr = Cesium.HeadingPitchRoll.fromDegrees(0.0, 0.0, 0.0, new Cesium.HeadingPitchRoll());
+    // (z,y,x) 方向上的旋转角度
+    var hpr = Cesium.HeadingPitchRoll.fromDegrees(0.0, 180.0, 0.0, new Cesium.HeadingPitchRoll());
+
     var trs = new Cesium.TranslationRotationScale();
     trs.translation = Cesium.Cartesian3.fromElements(2.5, 4.0, 1.0, new Cesium.Cartesian3());
     trs.rotation = Cesium.Quaternion.fromHeadingPitchRoll(hpr, new Cesium.Quaternion());
     return Cesium.Matrix4.fromTranslationRotationScale(trs, new Cesium.Matrix4());
 }
 
-// 重力
-var gravity = -100;
+// 重力（负数表示向下）
+var gravity = -9.8;
 var gravityScratch = new Cesium.Cartesian3();
 function applyGravity(p, dt) {
     // Compute a local up vector for each particle in geocentric space.
@@ -81,17 +84,39 @@ function applyGravity(p, dt) {
 // 建立粒子系统
 var particleSystem = viewer.scene.primitives.add(new Cesium.ParticleSystem({
     image : '../../SampleData/fire.png',
-    startScale : 1.0,
-    endScale : 4.0,
-    particleLife : 1.0,
+
+    // 大小的倍数
+    startScale : 5.0,
+    endScale : 5.0,
+
     speed : 5.0,
     imageSize : new Cesium.Cartesian2(20, 20),
+
     emissionRate : 5.0,
-    lifetime : 16.0,
+    emitter: new Cesium.CircleEmitter(5.0),
+
+    lifetime : 5.0,
+    loop: true,
+
+    minimumParticleLife: 5.0,  // 最大最小存活时间
+    maximumParticleLife: 20.0,
+
     modelMatrix : computeModelMatrix(entity, Cesium.JulianDate.now()),
     emitterModelMatrix : computeEmitterModelMatrix(),
-    // forces: applyGravity,
+    
+    // 重力
     updateCallback: applyGravity,
+    
+    // 爆炸效果
+    // bursts : [
+    //     new Cesium.ParticleBurst({time : 1.0, minimum : 300, maximum : 500}),
+    //     new Cesium.ParticleBurst({time : 3.0, minimum : 50, maximum : 100}),
+    //     new Cesium.ParticleBurst({time : 5.0, minimum : 200, maximum : 300})
+    // ],
+
+    // 颜色效果
+    startColor: Cesium.Color.RED.withAlpha(0.7),
+    endColor: Cesium.Color.YELLOW.withAlpha(0.3)
 }));
 
 //Sandcastle_End
