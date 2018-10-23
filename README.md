@@ -1,6 +1,6 @@
 # 水模拟 - WaterSimulation
 
-&emsp;东西都放在 `Apps/Sandcastle/gallery2/` 里面了。
+&emsp;东西都放在 `Apps/Sandcastle/gallery2/` 里面了。在线地址：https://whuls.github.io/Water-Simulation/Apps/Sandcastle/gallery2/model.html
 
 &emsp;尝试模拟 **降雨** 、 **节流** 、 **汇水** 、 **排水** 的功能。
 
